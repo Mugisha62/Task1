@@ -7,7 +7,7 @@ const usersList = document.getElementById("users");
 
 let editId = null;
 
-// FETCH USERS (READ)
+// GET USERS DATA
 function fetchUsers() {
   fetch(API_URL)
     .then(res => res.json())
@@ -30,7 +30,7 @@ function fetchUsers() {
     });
 }
 
-// ADD or UPDATE USER (CREATE + UPDATE)
+// ADD or UPDATE USER
 form.addEventListener("submit", function(e) {
   e.preventDefault();
 
@@ -61,14 +61,14 @@ form.addEventListener("submit", function(e) {
   }
 });
 
-// EDIT USER
+// EDIT USER INFO
 function editUser(id, name, email) {
   nameInput.value = name;
   emailInput.value = email;
   editId = id;
 }
 
-// DELETE USER
+// DELETE USER Info
 function deleteUser(id) {
   fetch(`${API_URL}/${id}`, {
     method: "DELETE"

@@ -1,62 +1,104 @@
+// ==========================
+// IMPORT REQUIRED PACKAGES
+// ==========================
 const express = require("express");
 const mysql = require("mysql");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 
+// ==========================
+// INITIALIZE APP
+// ==========================
 const app = express();
-app.use(cors());
-app.use(express.json());
+const PORT = 3000;
 
-// MySQL connection
+// ==========================
+// MIDDLEWARE
+// ==========================
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static("public")); // Serve frontend files
+
+// ==========================
+// MYSQL DATABASE CONNECTION
+// ==========================
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "",
-  database: "codveda_db"
+  password: "",        // default XAMPP password
+  database: "codveda_db"  // make sure this database exists
 });
 
-// Connect to database
-db.connect((err) => {
+db.connect(err => {
   if (err) {
-    console.log("Database connection failed");
+    console.error("MySQL connection error:", err);
     return;
   }
   console.log("MySQL Connected");
 });
 
-// CREATE user
+// ==========================
+// ROUTES (CRUD OPERATIONS)
+// ==========================
+
+// READ: Get all users
+app.get("/users", (req, res) => {
+  const sql = "SELECT * FROM users";
+  db.query(sql, (err, results) => {
+    if (err) {
+      res.status(500).json(err);
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// CREATE: Add new user
 app.post("/users", (req, res) => {
   const { name, email } = req.body;
+
   const sql = "INSERT INTO users (name, email) VALUES (?, ?)";
-  db.query(sql, [name, email], () => {
-    res.send("User Added Successfully");
+  db.query(sql, [name, email], (err, result) => {
+    if (err) {
+      res.status(500).json(err);
+    } else {
+      res.json({ message: "User added successfully" });
+    }
   });
 });
 
-// READ users
-app.get("/users", (req, res) => {
-  db.query("SELECT * FROM users", (err, result) => {
-    res.json(result);
-  });
-});
-
-// UPDATE user
+// UPDATE: Update user
 app.put("/users/:id", (req, res) => {
   const { name, email } = req.body;
-  const sql = "UPDATE users SET name=?, email=? WHERE id=?";
-  db.query(sql, [name, email, req.params.id], () => {
-    res.send("User Updated Successfully");
+  const { id } = req.params;
+
+  const sql = "UPDATE users SET name = ?, email = ? WHERE id = ?";
+  db.query(sql, [name, email, id], err => {
+    if (err) {
+      res.status(500).json(err);
+    } else {
+      res.json({ message: "User updated successfully" });
+    }
   });
 });
 
-// DELETE user
+// DELETE: Delete user
 app.delete("/users/:id", (req, res) => {
-  const sql = "DELETE FROM users WHERE id=?";
-  db.query(sql, [req.params.id], () => {
-    res.send("User Deleted Successfully");
+  const { id } = req.params;
+
+  const sql = "DELETE FROM users WHERE id = ?";
+  db.query(sql, [id], err => {
+    if (err) {
+      res.status(500).json(err);
+    } else {
+      res.json({ message: "User deleted successfully" });
+    }
   });
 });
 
-// Start server
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
+// ==========================
+// START SERVER
+// ==========================
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
