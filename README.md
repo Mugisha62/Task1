@@ -66,25 +66,7 @@ XAMPP – MySQL database server
 VS Code – Code editor
 
 
-Project Structure Explained
 
-Task1/
-│
-├── public/
-│   ├── index.html   → Frontend user interface
-│   ├── style.css    → Application styling
-│   └── script.js    → Frontend logic & API requests
-│
-├── server.js        → Backend server and API logic
-├── package.json     → Project dependencies
-├── package-lock.json
-├── .gitignore       → Ignored files (node_modules)
-└── README.md        → Project documentation
-
-Why public/ folder?
-
-The public folder contains all frontend files.
-Express is configured to serve this folder as static content, which is a best practice in Node.js applications.
 
 
 Database Configuration
