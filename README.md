@@ -148,9 +148,28 @@ Delete users from the database
 JavaScript handles all communication with the backend using HTTP requests.
 
 
+SCREENSHOTS 
+
+
+
+
 <img width="859" height="126" alt="image" src="https://github.com/user-attachments/assets/eb5fb01c-2a47-4618-94fe-ec29fa442a5a" />
 
+
+
+
+
+
+
+
 <img width="1918" height="954" alt="image" src="https://github.com/user-attachments/assets/af33fcf5-0cec-4676-9ab8-4b7e0c18d1f9" />
+
+
+
+
+
+
+
 
 <img width="1917" height="917" alt="image" src="https://github.com/user-attachments/assets/607d2b27-781a-477f-8ffb-ae62d6a55f47" />
 
