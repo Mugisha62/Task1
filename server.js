@@ -1,104 +1,111 @@
-// ==========================
-// IMPORT REQUIRED PACKAGES
-// ==========================
-const express = require("express");
-const mysql = require("mysql");
-const cors = require("cors");
-const bodyParser = require("body-parser");
 
-// ==========================
-// INITIALIZE APP
-// ==========================
+// IMPORT PACKAGES
+
+const express = require("express");
+const mysql = require("mysql2");
+const cors = require("cors");
+
+
+// APP SETUP
+
 const app = express();
 const PORT = 3000;
 
-// ==========================
-// MIDDLEWARE
-// ==========================
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static("public")); // Serve frontend files
 
-// ==========================
-// MYSQL DATABASE CONNECTION
-// ==========================
-const db = mysql.createConnection({
+// MIDDLEWARE
+
+app.use(cors());
+app.use(express.json());
+app.use(express.static("public"));
+
+
+// MYSQL CONNECTION POOL 
+
+const db = mysql.createPool({
   host: "localhost",
   user: "root",
-  password: "",        // default XAMPP password
-  database: "codveda_db"  // make sure this database exists
+  password: "",          
+  database: "codveda_db",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-db.connect(err => {
+// Test DB connection
+db.getConnection((err, connection) => {
   if (err) {
-    console.error("MySQL connection error:", err);
-    return;
+    console.error("MySQL connection failed:", err);
+  } else {
+    console.log("MySQL connected successfully");
+    connection.release();
   }
-  console.log("MySQL Connected");
 });
 
-// ==========================
-// ROUTES (CRUD OPERATIONS)
-// ==========================
 
-// READ: Get all users
+// READ USERS
 app.get("/users", (req, res) => {
-  const sql = "SELECT * FROM users";
-  db.query(sql, (err, results) => {
+  db.query("SELECT * FROM users", (err, results) => {
     if (err) {
-      res.status(500).json(err);
-    } else {
-      res.json(results);
+      console.error("READ ERROR:", err);
+      return res.status(500).json({ error: "Failed to fetch users" });
     }
+    res.json(results);
   });
 });
 
-// CREATE: Add new user
+// CREATE USER
 app.post("/users", (req, res) => {
   const { name, email } = req.body;
+
+  if (!name || !email) {
+    return res.status(400).json({ error: "Name and email required" });
+  }
 
   const sql = "INSERT INTO users (name, email) VALUES (?, ?)";
   db.query(sql, [name, email], (err, result) => {
     if (err) {
-      res.status(500).json(err);
-    } else {
-      res.json({ message: "User added successfully" });
+      console.error("INSERT ERROR:", err);
+      return res.status(500).json({ error: "Failed to insert user" });
     }
+
+    res.json({
+      message: "User added successfully",
+      id: result.insertId
+    });
   });
 });
 
-// UPDATE: Update user
+// UPDATE USER
 app.put("/users/:id", (req, res) => {
   const { name, email } = req.body;
   const { id } = req.params;
 
-  const sql = "UPDATE users SET name = ?, email = ? WHERE id = ?";
+  const sql = "UPDATE users SET name=?, email=? WHERE id=?";
   db.query(sql, [name, email, id], err => {
     if (err) {
-      res.status(500).json(err);
-    } else {
-      res.json({ message: "User updated successfully" });
+      console.error("UPDATE ERROR:", err);
+      return res.status(500).json({ error: "Failed to update user" });
     }
+    res.json({ message: "User updated successfully" });
   });
 });
 
-// DELETE: Delete user
+// DELETE USER
 app.delete("/users/:id", (req, res) => {
   const { id } = req.params;
 
-  const sql = "DELETE FROM users WHERE id = ?";
-  db.query(sql, [id], err => {
+  db.query("DELETE FROM users WHERE id=?", [id], err => {
     if (err) {
-      res.status(500).json(err);
-    } else {
-      res.json({ message: "User deleted successfully" });
+      console.error("DELETE ERROR:", err);
+      return res.status(500).json({ error: "Failed to delete user" });
     }
+    res.json({ message: "User deleted successfully" });
   });
 });
 
-// ==========================
+
 // START SERVER
-// ==========================
+
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

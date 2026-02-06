@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/users";
+const API_URL = "/users";
 
 const form = document.getElementById("userForm");
 const nameInput = document.getElementById("name");
@@ -7,7 +7,7 @@ const usersList = document.getElementById("users");
 
 let editId = null;
 
-// GET USERS DATA
+// READ
 function fetchUsers() {
   fetch(API_URL)
     .then(res => res.json())
@@ -30,13 +30,13 @@ function fetchUsers() {
     });
 }
 
-// ADD or UPDATE USER
-form.addEventListener("submit", function(e) {
+// CREATE + UPDATE
+form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const userData = {
-    name: nameInput.value,
-    email: emailInput.value
+    name: nameInput.value.trim(),
+    email: emailInput.value.trim()
   };
 
   if (editId) {
@@ -61,19 +61,18 @@ form.addEventListener("submit", function(e) {
   }
 });
 
-// EDIT USER INFO
+// EDIT
 function editUser(id, name, email) {
   nameInput.value = name;
   emailInput.value = email;
   editId = id;
 }
 
-// DELETE USER Info
+// DELETE
 function deleteUser(id) {
-  fetch(`${API_URL}/${id}`, {
-    method: "DELETE"
-  }).then(fetchUsers);
+  fetch(`${API_URL}/${id}`, { method: "DELETE" })
+    .then(fetchUsers);
 }
 
-// Load users on start
+// Load on start
 fetchUsers();
